@@ -15,14 +15,8 @@
 package uk.co.nickbutcher.adaptiveiconplayground
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapShader
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Matrix
-import android.graphics.Paint
+import android.graphics.*
 import android.graphics.Shader.TileMode.CLAMP
-import android.graphics.drawable.AdaptiveIconDrawable
 import android.graphics.drawable.Drawable
 import android.support.annotation.FloatRange
 import android.support.annotation.Keep
@@ -106,7 +100,7 @@ class AdaptiveIconView(
         layerSize = Math.round(TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP, 108f, context.resources.displayMetrics))
         layerCenter = (layerSize / 2).toFloat()
-        iconSize = (layerSize / (1 + 2 * AdaptiveIconDrawable.getExtraInsetFraction())).toInt()
+        iconSize = (layerSize / (1 + 2 * AdaptiveIconDrawableCompat.getExtraInsetFraction())).toInt()
         viewportOffset = (layerSize - iconSize) / 2
 
         background = Bitmap.createBitmap(layerSize, layerSize, Bitmap.Config.ARGB_8888)
@@ -115,7 +109,7 @@ class AdaptiveIconView(
         foregroundPaint.shader = BitmapShader(foreground, CLAMP, CLAMP)
     }
 
-    fun setIcon(icon: AdaptiveIconDrawable) {
+    fun setIcon(icon: AdaptiveIconDrawableCompat) {
         background.eraseColor(Color.TRANSPARENT)
         foreground.eraseColor(Color.TRANSPARENT)
         val c = Canvas()

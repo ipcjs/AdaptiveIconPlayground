@@ -18,7 +18,6 @@ import android.animation.ObjectAnimator
 import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
-import android.graphics.drawable.AdaptiveIconDrawable
 import android.os.Bundle
 import android.support.animation.FloatPropertyCompat
 import android.support.animation.SpringAnimation
@@ -37,12 +36,8 @@ import android.transition.Fade
 import android.transition.TransitionManager
 import android.transition.TransitionSet
 import android.util.FloatProperty
-import android.view.LayoutInflater
-import android.view.MotionEvent
-import android.view.VelocityTracker
-import android.view.View
+import android.view.*
 import android.view.View.GONE
-import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.LinearLayout.HORIZONTAL
@@ -232,19 +227,19 @@ class MainActivity : AppCompatActivity() {
                 })
 
         supportLoaderManager.initLoader(0, Bundle.EMPTY,
-                object : LoaderManager.LoaderCallbacks<List<AdaptiveIconDrawable>> {
+                object : LoaderManager.LoaderCallbacks<List<AdaptiveIconDrawableCompat>> {
                     override fun onCreateLoader(id: Int, args: Bundle) =
                             AdaptiveIconLoader(applicationContext)
 
-                    override fun onLoadFinished(loader: Loader<List<AdaptiveIconDrawable>>,
-                                                data: List<AdaptiveIconDrawable>) {
+                    override fun onLoadFinished(loader: Loader<List<AdaptiveIconDrawableCompat>>,
+                                                data: List<AdaptiveIconDrawableCompat>) {
                         findViewById<View>(R.id.loading).visibility = GONE
                         adapter = IconAdapter(data, corners[0])
                         grid.adapter = adapter
                         grid.setOnTouchListener(gridTouch)
                     }
 
-                    override fun onLoaderReset(loader: Loader<List<AdaptiveIconDrawable>>) {}
+                    override fun onLoaderReset(loader: Loader<List<AdaptiveIconDrawableCompat>>) {}
                 })
     }
 
@@ -282,9 +277,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private class AdaptiveIconLoader(context: Context)
-        : AsyncTaskLoader<List<AdaptiveIconDrawable>>(context) {
+        : AsyncTaskLoader<List<AdaptiveIconDrawableCompat>>(context) {
 
-        private val icons = ArrayList<AdaptiveIconDrawable>()
+        private val icons = ArrayList<AdaptiveIconDrawableCompat>()
 
         override fun onStartLoading() {
             if (icons.isNotEmpty()) {
@@ -294,32 +289,30 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        override fun loadInBackground(): List<AdaptiveIconDrawable>? {
+        override fun loadInBackground(): List<AdaptiveIconDrawableCompat>? {
             val pm = context.packageManager
-            val adaptiveIcons = ArrayList<AdaptiveIconDrawable>()
+            val adaptiveIcons = ArrayList<AdaptiveIconDrawableCompat>()
             val launcherIntent = Intent().apply { addCategory(Intent.CATEGORY_LAUNCHER) }
             pm.getInstalledApplications(0).forEach { appInfo ->
                 launcherIntent.`package` = appInfo.packageName
                 // only show launch-able apps
                 if (pm.queryIntentActivities(launcherIntent, 0).size > 0) {
                     val icon = appInfo.loadUnbadgedIcon(pm)
-                    if (icon is AdaptiveIconDrawable) {
-                        adaptiveIcons += icon
-                    }
+                    adaptiveIcons += AdaptiveIconDrawableCompat(icon);
                 }
             }
-            adaptiveIcons += context.getDrawable(R.drawable.ic_launcher_alt) as AdaptiveIconDrawable
+//            adaptiveIcons += AdaptiveIconDrawableCompat(context.getDrawable(R.drawable.ic_launcher_alt))
             return adaptiveIcons
         }
 
-        override fun deliverResult(data: List<AdaptiveIconDrawable>) {
+        override fun deliverResult(data: List<AdaptiveIconDrawableCompat>) {
             icons += data
             super.deliverResult(data)
         }
     }
 
     private class IconAdapter(
-            private val adaptiveIcons: List<AdaptiveIconDrawable>,
+            private val adaptiveIcons: List<AdaptiveIconDrawableCompat>,
             var iconCornerRadius: Float
     ) : RecyclerView.Adapter<IconViewHolder>() {
 
